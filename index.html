@@ -301,28 +301,68 @@ form.onsubmit = e => {
 
 /* ===== EXPORT PDF ===== */
 document.getElementById('pdfBtn').onclick = async () => {
-  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+  const { jsPDF } = window.jspdf;
+
+  const logs = getFiltered();
+  if (!logs.length) {
+    alert('Ingen data att exportera');
+    return;
+  }
+
   const from = fromDateInput.value || 'start';
   const to = toDateInput.value || 'idag';
 
-  printTitle.textContent = `Blodtryckslogg från ${from} till ${to}`;
-  render(getFiltered());
+  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
 
-  await new Promise(r => setTimeout(r, 300));
+  let y = 40;
 
-  if (isMobile && navigator.share) {
+  // Titel
+  doc.setFontSize(16);
+  doc.text(`Blodtryckslogg från ${from} till ${to}`, 40, y);
+  y += 30;
+
+  doc.setFontSize(10);
+
+  let currentDate = '';
+  logs.forEach(l => {
+    if (l.date !== currentDate) {
+      currentDate = l.date;
+      y += 20;
+      doc.setFont(undefined, 'bold');
+      doc.text(currentDate, 40, y);
+      doc.setFont(undefined, 'normal');
+      y += 14;
+    }
+
+    const line =
+      `${l.time}  ${l.systolic}/${l.diastolic} mmHg  Puls ${l.pulse}`;
+    doc.text(line, 60, y);
+    y += 14;
+
+    if (y > 800) {
+      doc.addPage();
+      y = 40;
+    }
+  });
+
+  const pdfBlob = doc.output('blob');
+  const fileName = `blodtryckslogg_${from}_${to}.pdf`;
+  const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+  // Mobil + stöd för fil-delning
+  if (navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({
-        title: 'Blodtryckslogg',
-        text: `Blodtryckslogg från ${from} till ${to}`
+        files: [file],
+        title: 'Blodtryckslogg'
       });
-    } catch (e) {}
+    } catch (e) {
+      // användaren avbröt
+    }
   } else {
-    window.print();
+    // Desktop fallback
+    doc.save(fileName);
   }
-
-  printTitle.textContent = '';
-  render();
 };
 
 /* ===== CSV ===== */
@@ -365,6 +405,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
