@@ -298,74 +298,73 @@ form.onsubmit = e => {
 };
 
 /* ===== EXPORT PDF ===== */
-document.getElementById('pdfBtn').onclick = () => {
-  alert('PDF export tillfälligt avstängd – felsökning pågår');
+document.getElementById('pdfBtn').onclick = async () => {
+  try {
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+      alert('PDF-biblioteket kunde inte laddas');
+      return;
+    }
+
+    const { jsPDF } = window.jspdf;
+    const logs = getFiltered();
+
+    if (!logs.length) {
+      alert('Ingen data att exportera');
+      return;
+    }
+
+    const from = fromDateInput.value || 'start';
+    const to = toDateInput.value || 'idag';
+
+    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
+    let y = 40;
+
+    doc.setFontSize(16);
+    doc.text(`Blodtryckslogg från ${from} till ${to}`, 40, y);
+    y += 30;
+    doc.setFontSize(10);
+
+    let currentDate = '';
+    logs.forEach(l => {
+      if (l.date !== currentDate) {
+        currentDate = l.date;
+        y += 16;
+        doc.setFont(undefined, 'bold');
+        doc.text(currentDate, 40, y);
+        doc.setFont(undefined, 'normal');
+        y += 14;
+      }
+
+      doc.text(
+        `${l.time}  ${l.systolic}/${l.diastolic} mmHg  Puls ${l.pulse}`,
+        60,
+        y
+      );
+      y += 14;
+
+      if (y > 800) {
+        doc.addPage();
+        y = 40;
+      }
+    });
+
+    const blob = doc.output('blob');
+    const file = new File([blob], `blodtryckslogg_${from}_${to}.pdf`, {
+      type: 'application/pdf'
+    });
+
+    if (navigator.canShare && navigator.canShare({ files: [file] })) {
+      await navigator.share({ files: [file], title: 'Blodtryckslogg' });
+    } else {
+      doc.save(file.name);
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert('Ett fel uppstod vid PDF-export');
+  }
 };
 
-/*document.getElementById('pdfBtn').onclick = async () => {
-  const { jsPDF } = window.jspdf;
-
-  const logs = getFiltered();
-  if (!logs.length) {
-    alert('Ingen data att exportera');
-    return;
-  }
-
-  const from = fromDateInput.value || 'start';
-  const to = toDateInput.value || 'idag';
-
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-
-  let y = 40;
-
-  // Titel
-  doc.setFontSize(16);
-  doc.text(`Blodtryckslogg från ${from} till ${to}`, 40, y);
-  y += 30;
-
-  doc.setFontSize(10);
-
-  let currentDate = '';
-  logs.forEach(l => {
-    if (l.date !== currentDate) {
-      currentDate = l.date;
-      y += 20;
-      doc.setFont(undefined, 'bold');
-      doc.text(currentDate, 40, y);
-      doc.setFont(undefined, 'normal');
-      y += 14;
-    }
-
-    const line =
-      `${l.time}  ${l.systolic}/${l.diastolic} mmHg  Puls ${l.pulse}`;
-    doc.text(line, 60, y);
-    y += 14;
-
-    if (y > 800) {
-      doc.addPage();
-      y = 40;
-    }
-  });
-
-  const pdfBlob = doc.output('blob');
-  const fileName = `blodtryckslogg_${from}_${to}.pdf`;
-  const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
-
-  // Mobil + stöd för fil-delning
-  if (navigator.canShare && navigator.canShare({ files: [file] })) {
-    try {
-      await navigator.share({
-        files: [file],
-        title: 'Blodtryckslogg'
-      });
-    } catch (e) {
-      // användaren avbröt
-    }
-  } else {
-    // Desktop fallback
-    doc.save(fileName);
-  }
-};*/
 
 /* ===== CSV ===== */
 document.getElementById('csvBtn').onclick = () => {
@@ -407,6 +406,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
