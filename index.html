@@ -251,18 +251,43 @@ document.getElementById('printBtn').onclick=()=>{
 };
 
 /* ===== CSV ===== */
-document.getElementById('csvBtn').onclick=()=>{
-  const logs=getFiltered();
-  if(!logs.length)return;
-  let csv='Datum,Tid,Systoliskt,Diastoliskt,Puls\n';
-  logs.forEach(l=>{
-    csv+=`${l.date},${l.time},${l.systolic},${l.diastolic},${l.pulse}\n`;
+document.addEventListener('DOMContentLoaded', () => {
+  const csvBtn = document.getElementById('csvBtn');
+
+  csvBtn.addEventListener('click', () => {
+    const logs = getFiltered();
+
+    if (!logs.length) {
+      alert('Ingen data att exportera');
+      return;
+    }
+
+    let csv = 'Datum,Tid,Systoliskt,Diastoliskt,Puls\n';
+
+    logs.forEach(l => {
+      csv += [
+        l.date,
+        l.time,
+        l.systolic,
+        l.diastolic,
+        l.pulse
+      ].join(',') + '\n';
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'blodtryck_logg.csv';
+
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(url);
   });
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download='blodtryck_logg.csv';
-  a.click();
-};
+});
 
 /* ===== BACKUP ===== */
 document.getElementById('backupBtn').onclick=()=>{
@@ -277,3 +302,4 @@ render();
 </script>
 </body>
 </html>
+
