@@ -1,4 +1,4 @@
-const CACHE_NAME = 'bp-logg-v1.4.2';
+const CACHE_NAME = 'bp-logg-v1.4.3';
 
 const FILES_TO_CACHE = [
   './',
@@ -31,4 +31,5 @@ self.addEventListener('fetch', e => {
     caches.match(e.request).then(r => r || fetch(e.request))
   );
 });
+
 
