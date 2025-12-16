@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Blodtrycks Loggen</title>
+<title>Blodtrycks Logg</title>
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
@@ -193,7 +193,7 @@ footer{
   <div id="emptyState" class="empty">Ingen logg sparad ännu</div>
 </div>
 
-<footer>Version 1.4.6 (PWA) · Skapad av Glenn Hauger © 2025 </footer>
+<footer>Version 1.4.7 (PWA) · Skapad av Glenn Hauger © 2025 </footer>
 </div>
 
 <div class="sticky-save">
@@ -298,7 +298,11 @@ form.onsubmit = e => {
 };
 
 /* ===== EXPORT PDF ===== */
-document.getElementById('pdfBtn').onclick = async () => {
+document.getElementById('pdfBtn').onclick = () => {
+  alert('PDF export tillfälligt avstängd – felsökning pågår');
+};
+
+/*document.getElementById('pdfBtn').onclick = async () => {
   const { jsPDF } = window.jspdf;
 
   const logs = getFiltered();
@@ -361,7 +365,7 @@ document.getElementById('pdfBtn').onclick = async () => {
     // Desktop fallback
     doc.save(fileName);
   }
-};
+};*/
 
 /* ===== CSV ===== */
 document.getElementById('csvBtn').onclick = () => {
@@ -403,6 +407,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
