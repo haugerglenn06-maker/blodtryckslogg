@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="512"
+  height="512"
+  viewBox="0 0 512 512">
+
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#3b82f6"/>
+      <stop offset="100%" stop-color="#2563eb"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="96" fill="url(#bg)"/>
+
+  <!-- Heart -->
+  <path
+    d="M256 350
+       C190 300 140 250 140 200
+       C140 160 170 135 205 135
+       C230 135 248 150 256 165
+       C264 150 282 135 307 135
+       C342 135 372 160 372 200
+       C372 250 322 300 256 350Z"
+    fill="#ef4444"/>
+
+  <!-- ECG line -->
+  <polyline
+    points="155,225 205,225 225,205 245,255 265,195 285,225 345,225"
+    fill="none"
+    stroke="#ffffff"
+    stroke-width="12"
+    stroke-linecap="round"
+    stroke-linejoin="round"/>
+
+  <!-- Blood pressure monitor -->
+  <rect x="90" y="275" width="140" height="95" rx="14" fill="#111827"/>
+  <rect x="100" y="285" width="120" height="60" rx="10" fill="#ffffff"/>
+  <text
+    x="160"
+    y="325"
+    text-anchor="middle"
+    font-size="30"
+    font-family="system-ui, Arial"
+    fill="#111827">
+    120/80
+  </text>
+
+  <!-- Stethoscope -->
+  <path
+    d="M300 290
+       C300 360 380 360 380 310"
+    fill="none"
+    stroke="#111827"
+    stroke-width="14"
+    stroke-linecap="round"/>
+
+  <circle cx="380" cy="310" r="14" fill="#111827"/>
+
+</svg>

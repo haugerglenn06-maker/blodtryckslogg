@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="sv">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Blodtrycks Logg</title>
+
+        <link rel="manifest" href="manifest.json" />
+        <meta name="theme-color" content="#2563eb" />
+
+        <style>
+            :root {
+                --bg: #f4f6f8;
+                --card: #fff;
+                --primary: #2563eb;
+                --text: #111827;
+                --muted: #6b7280;
+                --border: #e5e7eb;
+                --warn: #b91c1c;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                font-family: system-ui, -apple-system, Segoe UI, Roboto,
+                    sans-serif;
+                background: var(--bg);
+                color: var(--text);
+            }
+
+            /* banners */
+            .banner {
+                padding: 10px 16px;
+                font-size: 0.85rem;
+                text-align: center;
+            }
+            .banner.offline {
+                background: #fee2e2;
+                color: var(--warn);
+                display: none;
+            }
+            .banner.update {
+                background: #dbeafe;
+                color: #1e40af;
+                display: none;
+            }
+            .banner button {
+                margin-left: 12px;
+                padding: 6px 12px;
+                border: none;
+                border-radius: 6px;
+                background: #1e40af;
+                color: #fff;
+                cursor: pointer;
+            }
+
+            .container {
+                max-width: 720px;
+                margin: 0 auto;
+                padding: 16px 16px 96px;
+            }
+            .card {
+                background: var(--card);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                padding: 16px;
+                margin-bottom: 16px;
+            }
+            h1 {
+                text-align: center;
+                margin-bottom: 16px;
+            }
+
+            /* form */
+            .form {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .form-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 12px;
+            }
+            @media (max-width: 640px) {
+                .form-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+            .field {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            label {
+                font-size: 0.75rem;
+                color: var(--muted);
+            }
+            input {
+                padding: 10px;
+                border-radius: 8px;
+                border: 1px solid var(--border);
+            }
+            .form-actions {
+                display: flex;
+                justify-content: flex-end;
+            }
+            .form-actions button {
+                padding: 10px 20px;
+                border: none;
+                border-radius: 8px;
+                background: var(--primary);
+                color: #fff;
+            }
+
+            /* controls */
+            .controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr auto auto auto;
+                gap: 8px;
+                margin-bottom: 12px;
+            }
+            @media (max-width: 640px) {
+                .controls {
+                    grid-template-columns: 1fr;
+                }
+                .controls button {
+                    width: 100%;
+                }
+            }
+
+            .day-title {
+                font-weight: 600;
+                margin: 12px 0 4px;
+            }
+            ul {
+                list-style: none;
+                padding: 0;
+                margin: 0;
+            }
+            li {
+                padding: 8px 0;
+                border-bottom: 1px solid var(--border);
+            }
+            .value-ok {
+                color: #15803d;
+            }
+            .value-warn {
+                color: #b91c1c;
+                font-weight: 600;
+            }
+            .empty {
+                text-align: center;
+                color: var(--muted);
+            }
+
+            /* sticky save */
+            .sticky-save {
+                display: none;
+            }
+            @media (max-width: 640px) {
+                .form-actions {
+                    display: none;
+                }
+                .sticky-save {
+                    display: block;
+                    position: fixed;
+                    bottom: 0;
+                    left: 0;
+                    right: 0;
+                    background: #fff;
+                    border-top: 1px solid var(--border);
+                    padding: 12px 16px;
+                }
+                .sticky-save button {
+                    width: 100%;
+                    padding: 12px;
+                    border: none;
+                    border-radius: 8px;
+                    background: var(--primary);
+                    color: #fff;
+                }
+            }
+
+            /* print */
+            @media print {
+                .banner,
+                form,
+                .controls,
+                .sticky-save,
+                footer,
+                button {
+                    display: none !important;
+                }
+                body {
+                    background: #fff;
+                }
+                .card {
+                    border: none;
+                    padding: 0;
+                }
+            }
+
+            footer {
+                text-align: center;
+                color: var(--muted);
+                font-size: 0.75rem;
+                margin-top: 24px;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div id="offlineBanner" class="banner offline">
+            🔴 Du är offline – ändringar sparas lokalt
+        </div>
+
+        <div id="updateBanner" class="banner update">
+            🔄 Ny version tillgänglig
+            <button id="reloadBtn">Uppdatera</button>
+        </div>
+
+        <div class="container">
+            <h1>Blodtrycks Logg</h1>
+
+            <div class="card">
+                <form id="logForm" class="form">
+                    <div class="form-grid">
+                        <div class="field">
+                            <label>Tid</label
+                            ><input id="time" type="time" required />
+                        </div>
+                        <div class="field">
+                            <label>Systoliskt</label
+                            ><input id="systolic" type="number" required />
+                        </div>
+                        <div class="field">
+                            <label>Diastoliskt</label
+                            ><input id="diastolic" type="number" required />
+                        </div>
+                        <div class="field">
+                            <label>Puls</label
+                            ><input id="pulse" type="number" required />
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit">Spara</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="card">
+                <div class="controls">
+                    <input id="fromDate" type="date" />
+                    <input id="toDate" type="date" />
+                    <button id="printBtn">Skriv ut</button>
+                    <button id="csvBtn">Export CSV</button>
+                    <button id="backupBtn">Säkerhetskopiera</button>
+                </div>
+
+                <div id="logContainer"></div>
+                <div id="emptyState" class="empty">Ingen logg sparad ännu</div>
+            </div>
+
+            <footer>Version 1.4.0 (PWA)</footer>
+        </div>
+
+        <div class="sticky-save">
+            <button type="submit" form="logForm">Spara</button>
+        </div>
+
+        <script>
+            let newWorker;
+            if ("serviceWorker" in navigator) {
+                navigator.serviceWorker
+                    .register("./service-worker.js")
+                    .then((reg) => {
+                        reg.addEventListener("updatefound", () => {
+                            newWorker = reg.installing;
+                            newWorker.addEventListener("statechange", () => {
+                                if (
+                                    newWorker.state === "installed" &&
+                                    navigator.serviceWorker.controller
+                                ) {
+                                    document.getElementById(
+                                        "updateBanner"
+                                    ).style.display = "block";
+                                }
+                            });
+                        });
+                    });
+            }
+            document.getElementById("reloadBtn").onclick = () =>
+                location.reload();
+
+            const offlineBanner = document.getElementById("offlineBanner");
+            function updateOnlineStatus() {
+                offlineBanner.style.display = navigator.onLine
+                    ? "none"
+                    : "block";
+            }
+            window.addEventListener("online", updateOnlineStatus);
+            window.addEventListener("offline", updateOnlineStatus);
+            updateOnlineStatus();
+
+            const STORAGE_KEY = "bloodpressure_logs";
+            const form = document.getElementById("logForm");
+            const container = document.getElementById("logContainer");
+            const emptyState = document.getElementById("emptyState");
+
+            function loadLogs() {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            }
+            function saveLogs(l) {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(l));
+            }
+
+            function render() {
+                const logs = loadLogs();
+                container.innerHTML = "";
+                emptyState.style.display = logs.length ? "none" : "block";
+                const grouped = {};
+                logs.forEach((l) =>
+                    (grouped[l.date] = grouped[l.date] || []).push(l)
+                );
+                Object.keys(grouped)
+                    .sort()
+                    .reverse()
+                    .forEach((d) => {
+                        const t = document.createElement("div");
+                        t.className = "day-title";
+                        t.textContent = d;
+                        container.appendChild(t);
+                        const ul = document.createElement("ul");
+                        grouped[d]
+                            .sort((a, b) => a.time.localeCompare(b.time))
+                            .forEach((l) => {
+                                const li = document.createElement("li");
+                                li.innerHTML = `${l.time} · 
+        <span class="${l.systolic >= 140 ? "value-warn" : "value-ok"}">${
+                                    l.systolic
+                                }</span> /
+        <span class="${l.diastolic >= 90 ? "value-warn" : "value-ok"}">${
+                                    l.diastolic
+                                }</span>
+        · Puls <span class="${l.pulse >= 100 ? "value-warn" : "value-ok"}">${
+                                    l.pulse
+                                }</span>`;
+                                ul.appendChild(li);
+                            });
+                        container.appendChild(ul);
+                    });
+            }
+
+            form.onsubmit = (e) => {
+                e.preventDefault();
+                const logs = loadLogs();
+                logs.unshift({
+                    date: new Date().toISOString().split("T")[0],
+                    time: time.value,
+                    systolic: systolic.value,
+                    diastolic: diastolic.value,
+                    pulse: pulse.value,
+                });
+                saveLogs(logs);
+                form.reset();
+                render();
+            };
+
+            document.getElementById("backupBtn").onclick = () => {
+                const data = JSON.stringify(loadLogs(), null, 2);
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(
+                    new Blob([data], { type: "application/json" })
+                );
+                a.download = "blodtryck_backup.json";
+                a.click();
+            };
+
+            render();
+        </script>
+    </body>
+</html>
