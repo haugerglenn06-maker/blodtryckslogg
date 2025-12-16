@@ -11,24 +11,48 @@
 <style>
 :root{
   --bg:#f4f6f8;
-  --card:#fff;
+  --card:#ffffff;
   --primary:#2563eb;
   --text:#111827;
   --muted:#6b7280;
   --border:#e5e7eb;
   --warn:#b91c1c;
+  --ok:#15803d;
 }
 *{box-sizing:border-box;}
-body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text);}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
 
 /* banners */
 .banner{padding:10px 16px;font-size:.85rem;text-align:center;}
 .banner.offline{background:#fee2e2;color:var(--warn);display:none;}
 .banner.update{background:#dbeafe;color:#1e40af;display:none;}
-.banner button{margin-left:12px;padding:6px 12px;border:none;border-radius:6px;background:#1e40af;color:#fff;cursor:pointer;}
+.banner button{
+  margin-left:12px;
+  padding:6px 12px;
+  border:none;
+  border-radius:6px;
+  background:#1e40af;
+  color:#fff;
+  cursor:pointer;
+}
 
-.container{max-width:720px;margin:0 auto;padding:16px 16px 96px;}
-.card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px;}
+.container{
+  max-width:720px;
+  margin:0 auto;
+  padding:16px 16px 96px;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:16px;
+  margin-bottom:16px;
+}
 h1{text-align:center;margin-bottom:16px;}
 
 /* form */
@@ -37,12 +61,27 @@ h1{text-align:center;margin-bottom:16px;}
 @media(max-width:640px){.form-grid{grid-template-columns:1fr;}}
 .field{display:flex;flex-direction:column;gap:4px;}
 label{font-size:.75rem;color:var(--muted);}
-input{padding:10px;border-radius:8px;border:1px solid var(--border);}
+input{
+  padding:10px;
+  border-radius:8px;
+  border:1px solid var(--border);
+}
 .form-actions{display:flex;justify-content:flex-end;}
-.form-actions button{padding:10px 20px;border:none;border-radius:8px;background:var(--primary);color:#fff;}
+.form-actions button{
+  padding:10px 20px;
+  border:none;
+  border-radius:8px;
+  background:var(--primary);
+  color:#fff;
+}
 
 /* controls */
-.controls{display:grid;grid-template-columns:1fr 1fr auto auto auto;gap:8px;margin-bottom:12px;}
+.controls{
+  display:grid;
+  grid-template-columns:1fr 1fr auto auto auto;
+  gap:8px;
+  margin-bottom:12px;
+}
 @media(max-width:640px){
   .controls{grid-template-columns:1fr;}
   .controls button{width:100%;}
@@ -51,8 +90,8 @@ input{padding:10px;border-radius:8px;border:1px solid var(--border);}
 .day-title{font-weight:600;margin:12px 0 4px;}
 ul{list-style:none;padding:0;margin:0;}
 li{padding:8px 0;border-bottom:1px solid var(--border);}
-.value-ok{color:#15803d;}
-.value-warn{color:#b91c1c;font-weight:600;}
+.value-ok{color:var(--ok);}
+.value-warn{color:var(--warn);font-weight:600;}
 .empty{text-align:center;color:var(--muted);}
 
 /* sticky save */
@@ -88,7 +127,12 @@ li{padding:8px 0;border-bottom:1px solid var(--border);}
   .print-title{display:block;}
 }
 
-footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:24px;}
+footer{
+  text-align:center;
+  color:var(--muted);
+  font-size:.75rem;
+  margin-top:24px;
+}
 </style>
 </head>
 
@@ -109,12 +153,26 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:24px;}
 <div class="card">
 <form id="logForm" class="form">
   <div class="form-grid">
-    <div class="field"><label>Tid</label><input id="time" type="time" required></div>
-    <div class="field"><label>Systoliskt</label><input id="systolic" type="number" required></div>
-    <div class="field"><label>Diastoliskt</label><input id="diastolic" type="number" required></div>
-    <div class="field"><label>Puls</label><input id="pulse" type="number" required></div>
+    <div class="field">
+      <label>Tid</label>
+      <input id="time" type="time" required>
+    </div>
+    <div class="field">
+      <label>Systoliskt</label>
+      <input id="systolic" type="number" required>
+    </div>
+    <div class="field">
+      <label>Diastoliskt</label>
+      <input id="diastolic" type="number" required>
+    </div>
+    <div class="field">
+      <label>Puls</label>
+      <input id="pulse" type="number" required>
+    </div>
   </div>
-  <div class="form-actions"><button type="submit">Spara</button></div>
+  <div class="form-actions">
+    <button type="submit">Spara</button>
+  </div>
 </form>
 </div>
 
@@ -122,7 +180,7 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:24px;}
   <div class="controls">
     <input id="fromDate" type="date">
     <input id="toDate" type="date">
-    <button id="printBtn">Skriv ut</button>
+    <button id="pdfBtn">Exportera PDF</button>
     <button id="csvBtn">Export CSV</button>
     <button id="backupBtn">Säkerhetskopiera</button>
   </div>
@@ -132,7 +190,7 @@ footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:24px;}
   <div id="emptyState" class="empty">Ingen logg sparad ännu</div>
 </div>
 
-<footer>Version 1.4.3 (PWA) created by @ Glenn Hauger 2025</footer>
+<footer>Version 1.4.4 (PWA)</footer>
 </div>
 
 <div class="sticky-save">
@@ -154,154 +212,151 @@ if ('serviceWorker' in navigator) {
     });
   });
 }
-document.getElementById('reloadBtn').onclick=()=>location.reload();
+document.getElementById('reloadBtn').onclick = () => location.reload();
 
 /* ===== OFFLINE ===== */
-const offlineBanner=document.getElementById('offlineBanner');
+const offlineBanner = document.getElementById('offlineBanner');
 function updateOnlineStatus(){
   offlineBanner.style.display = navigator.onLine ? 'none' : 'block';
 }
-window.addEventListener('online',updateOnlineStatus);
-window.addEventListener('offline',updateOnlineStatus);
+window.addEventListener('online', updateOnlineStatus);
+window.addEventListener('offline', updateOnlineStatus);
 updateOnlineStatus();
 
 /* ===== DATA ===== */
-const STORAGE_KEY='bloodpressure_logs';
-const form=document.getElementById('logForm');
-const container=document.getElementById('logContainer');
-const emptyState=document.getElementById('emptyState');
-const fromDateInput=document.getElementById('fromDate');
-const toDateInput=document.getElementById('toDate');
-const printTitle=document.getElementById('printTitle');
+const STORAGE_KEY = 'bloodpressure_logs';
+const form = document.getElementById('logForm');
+const container = document.getElementById('logContainer');
+const emptyState = document.getElementById('emptyState');
+const fromDateInput = document.getElementById('fromDate');
+const toDateInput = document.getElementById('toDate');
+const printTitle = document.getElementById('printTitle');
 
-function loadLogs(){return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];}
-function saveLogs(l){localStorage.setItem(STORAGE_KEY,JSON.stringify(l));}
-
+function loadLogs(){
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+}
+function saveLogs(logs){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+}
 function getFiltered(){
-  const f=fromDateInput.value;
-  const t=toDateInput.value;
-  return loadLogs().filter(l=>(!f||l.date>=f)&&(!t||l.date<=t));
+  const f = fromDateInput.value;
+  const t = toDateInput.value;
+  return loadLogs().filter(l =>
+    (!f || l.date >= f) &&
+    (!t || l.date <= t)
+  );
 }
 
-function render(logs=loadLogs()){
-  container.innerHTML='';
-  emptyState.style.display=logs.length?'none':'block';
+/* ===== RENDER ===== */
+function render(logs = loadLogs()){
+  container.innerHTML = '';
+  emptyState.style.display = logs.length ? 'none' : 'block';
 
-  const grouped={};
-  logs.forEach(l=>(grouped[l.date]=grouped[l.date]||[]).push(l));
+  const grouped = {};
+  logs.forEach(l => (grouped[l.date] = grouped[l.date] || []).push(l));
 
-  Object.keys(grouped).sort().reverse().forEach(d=>{
-    const title=document.createElement('div');
-    title.className='day-title';
-    title.textContent=d;
+  Object.keys(grouped).sort().reverse().forEach(date => {
+    const title = document.createElement('div');
+    title.className = 'day-title';
+    title.textContent = date;
     container.appendChild(title);
 
-    const ul=document.createElement('ul');
-    grouped[d].sort((a,b)=>a.time.localeCompare(b.time)).forEach(l=>{
-      const li=document.createElement('li');
-      li.innerHTML=
-        `${l.time} · 
-        <span class="${l.systolic>=140?'value-warn':'value-ok'}">${l.systolic}</span> /
-        <span class="${l.diastolic>=90?'value-warn':'value-ok'}">${l.diastolic}</span>
-        · Puls <span class="${l.pulse>=100?'value-warn':'value-ok'}">${l.pulse}</span>`;
-      ul.appendChild(li);
-    });
+    const ul = document.createElement('ul');
+    grouped[date]
+      .sort((a,b) => a.time.localeCompare(b.time))
+      .forEach(l => {
+        const li = document.createElement('li');
+        li.innerHTML =
+          `${l.time} · 
+          <span class="${l.systolic>=140?'value-warn':'value-ok'}">${l.systolic}</span> /
+          <span class="${l.diastolic>=90?'value-warn':'value-ok'}">${l.diastolic}</span>
+          · Puls <span class="${l.pulse>=100?'value-warn':'value-ok'}">${l.pulse}</span>`;
+        ul.appendChild(li);
+      });
+
     container.appendChild(ul);
   });
 }
 
 /* ===== SAVE ===== */
-form.onsubmit=e=>{
+form.onsubmit = e => {
   e.preventDefault();
-  const logs=loadLogs();
+  const logs = loadLogs();
   logs.unshift({
-    date:new Date().toISOString().split('T')[0],
-    time:time.value,
-    systolic:systolic.value,
-    diastolic:diastolic.value,
-    pulse:pulse.value
+    date: new Date().toISOString().split('T')[0],
+    time: time.value,
+    systolic: systolic.value,
+    diastolic: diastolic.value,
+    pulse: pulse.value
   });
   saveLogs(logs);
   form.reset();
   render();
 };
 
-/* ===== PRINT (DESKTOP vs MOBILE) ===== */
-document.getElementById('printBtn').onclick=()=>{
-  const isMobile=/Android|iPhone|iPad/i.test(navigator.userAgent);
-  const f=fromDateInput.value||'start';
-  const t=toDateInput.value||'idag';
+/* ===== EXPORT PDF ===== */
+document.getElementById('pdfBtn').onclick = async () => {
+  const isMobile = /Android|iPhone|iPad/i.test(navigator.userAgent);
+  const from = fromDateInput.value || 'start';
+  const to = toDateInput.value || 'idag';
 
-  printTitle.textContent=`Blodtryckslogg från ${f} till ${t}`;
+  printTitle.textContent = `Blodtryckslogg från ${from} till ${to}`;
   render(getFiltered());
 
-  if(isMobile){
-    const html=document.documentElement.outerHTML;
-    const blob=new Blob([html],{type:'text/html'});
-    const url=URL.createObjectURL(blob);
-    window.open(url,'_blank');
-  }else{
+  await new Promise(r => setTimeout(r, 300));
+
+  if (isMobile && navigator.share) {
+    try {
+      await navigator.share({
+        title: 'Blodtryckslogg',
+        text: `Blodtryckslogg från ${from} till ${to}`
+      });
+    } catch (e) {}
+  } else {
     window.print();
   }
 
-  setTimeout(()=>{
-    printTitle.textContent='';
-    render();
-  },500);
+  printTitle.textContent = '';
+  render();
 };
 
 /* ===== CSV ===== */
-document.addEventListener('DOMContentLoaded', () => {
-  const csvBtn = document.getElementById('csvBtn');
-
-  csvBtn.addEventListener('click', () => {
-    const logs = getFiltered();
-
-    if (!logs.length) {
-      alert('Ingen data att exportera');
-      return;
-    }
-
-    let csv = 'Datum,Tid,Systoliskt,Diastoliskt,Puls\n';
-
-    logs.forEach(l => {
-      csv += [
-        l.date,
-        l.time,
-        l.systolic,
-        l.diastolic,
-        l.pulse
-      ].join(',') + '\n';
-    });
-
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'blodtryck_logg.csv';
-
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-
-    URL.revokeObjectURL(url);
+document.getElementById('csvBtn').onclick = () => {
+  const logs = getFiltered();
+  if (!logs.length) {
+    alert('Ingen data att exportera');
+    return;
+  }
+  let csv = 'Datum,Tid,Systoliskt,Diastoliskt,Puls\n';
+  logs.forEach(l => {
+    csv += `${l.date},${l.time},${l.systolic},${l.diastolic},${l.pulse}\n`;
   });
-});
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'blodtryck_logg.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
 
 /* ===== BACKUP ===== */
-document.getElementById('backupBtn').onclick=()=>{
-  const data=JSON.stringify(loadLogs(),null,2);
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(new Blob([data],{type:'application/json'}));
-  a.download='blodtryck_backup.json';
+document.getElementById('backupBtn').onclick = () => {
+  const data = JSON.stringify(loadLogs(), null, 2);
+  const blob = new Blob([data], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'blodtryck_backup.json';
+  document.body.appendChild(a);
   a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 };
 
 render();
 </script>
 </body>
 </html>
-
-
-
