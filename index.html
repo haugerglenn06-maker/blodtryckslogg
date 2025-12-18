@@ -294,6 +294,10 @@ form.onsubmit = e => {
   });
   saveLogs(logs);
   form.reset();
+  form.reset();
+
+  // Stäng mobiltangentbord
+  document.activeElement.blur();
   render();
 };
 
@@ -406,6 +410,7 @@ render();
 </script>
 </body>
 </html>
+
 
 
 
