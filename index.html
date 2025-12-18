@@ -8,9 +8,6 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2563eb">
 
-<script src="./jspdf.umd.min.js"></script>
-
-
 <style>
 :root{
   --bg:#f4f6f8;
@@ -22,7 +19,9 @@
   --warn:#b91c1c;
   --ok:#15803d;
 }
+
 *{box-sizing:border-box;}
+
 body{
   margin:0;
   font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
@@ -30,25 +29,13 @@ body{
   color:var(--text);
 }
 
-/* banners */
-.banner{padding:10px 16px;font-size:.85rem;text-align:center;}
-.banner.offline{background:#fee2e2;color:var(--warn);display:none;}
-.banner.update{background:#dbeafe;color:#1e40af;display:none;}
-.banner button{
-  margin-left:12px;
-  padding:6px 12px;
-  border:none;
-  border-radius:6px;
-  background:#1e40af;
-  color:#fff;
-  cursor:pointer;
-}
-
+/* Layout */
 .container{
   max-width:720px;
   margin:0 auto;
   padding:16px 16px 96px;
 }
+
 .card{
   background:var(--card);
   border:1px solid var(--border);
@@ -56,12 +43,14 @@ body{
   padding:16px;
   margin-bottom:16px;
 }
+
 h1{text-align:center;margin-bottom:16px;}
 
-/* form */
+/* Form */
 .form{display:flex;flex-direction:column;gap:12px;}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 @media(max-width:640px){.form-grid{grid-template-columns:1fr;}}
+
 .field{display:flex;flex-direction:column;gap:4px;}
 label{font-size:.75rem;color:var(--muted);}
 input{
@@ -69,7 +58,11 @@ input{
   border-radius:8px;
   border:1px solid var(--border);
 }
-.form-actions{display:flex;justify-content:flex-end;}
+
+.form-actions{
+  display:flex;
+  justify-content:flex-end;
+}
 .form-actions button{
   padding:10px 20px;
   border:none;
@@ -78,26 +71,7 @@ input{
   color:#fff;
 }
 
-/* controls */
-.controls{
-  display:grid;
-  grid-template-columns:1fr 1fr auto auto auto;
-  gap:8px;
-  margin-bottom:12px;
-}
-@media(max-width:640px){
-  .controls{grid-template-columns:1fr;}
-  .controls button{width:100%;}
-}
-
-.day-title{font-weight:600;margin:12px 0 4px;}
-ul{list-style:none;padding:0;margin:0;}
-li{padding:8px 0;border-bottom:1px solid var(--border);}
-.value-ok{color:var(--ok);}
-.value-warn{color:var(--warn);font-weight:600;}
-.empty{text-align:center;color:var(--muted);}
-
-/* sticky save */
+/* Sticky save (mobil) */
 .sticky-save{display:none;}
 @media(max-width:640px){
   .form-actions{display:none;}
@@ -121,10 +95,51 @@ li{padding:8px 0;border-bottom:1px solid var(--border);}
   }
 }
 
-/* print */
+/* Controls */
+.controls{
+  display:grid;
+  grid-template-columns:1fr 1fr auto auto auto;
+  gap:8px;
+  margin-bottom:12px;
+}
+@media(max-width:640px){
+  .controls{grid-template-columns:1fr;}
+  .controls button{width:100%;}
+}
+
+/* Logg */
+.day-title{font-weight:600;margin:12px 0 4px;}
+ul{list-style:none;padding:0;margin:0;}
+li{padding:8px 0;border-bottom:1px solid var(--border);}
+.value-ok{color:var(--ok);}
+.value-warn{color:var(--warn);font-weight:600;}
+.empty{text-align:center;color:var(--muted);}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:88px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111827;
+  color:#fff;
+  padding:10px 16px;
+  border-radius:999px;
+  font-size:.85rem;
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .3s ease,transform .3s ease;
+  z-index:1000;
+}
+.toast.show{
+  opacity:1;
+  transform:translateX(-50%) translateY(-6px);
+}
+
+/* Print */
 .print-title{display:none;font-weight:600;margin-bottom:12px;}
 @media print{
-  .banner,form,.controls,.sticky-save,footer,button{display:none!important;}
+  form,.controls,.sticky-save,footer,button{display:none!important;}
   body{background:#fff;}
   .card{border:none;padding:0;}
   .print-title{display:block;}
@@ -140,15 +155,6 @@ footer{
 </head>
 
 <body>
-
-<div id="offlineBanner" class="banner offline">
-  🔴 Du är offline – ändringar sparas lokalt
-</div>
-
-<div id="updateBanner" class="banner update">
-  🔄 Ny version tillgänglig
-  <button id="reloadBtn">Uppdatera</button>
-</div>
 
 <div class="container">
 <h1>Blodtrycks Logg</h1>
@@ -193,231 +199,123 @@ footer{
   <div id="emptyState" class="empty">Ingen logg sparad ännu</div>
 </div>
 
-<footer>Version 1.4.9 (PWA) · Skapad av Glenn Hauger © 2025 </footer>
+<footer>Version 1.4.8 (PWA) · Skapad av Glenn Hauger © 2025</footer>
 </div>
 
 <div class="sticky-save">
   <button type="submit" form="logForm">Spara</button>
 </div>
 
+<div id="toast" class="toast">Värde sparat</div>
+
 <script>
-/* ===== SERVICE WORKER ===== */
-let newWorker;
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./service-worker.js').then(reg => {
-    reg.addEventListener('updatefound', () => {
-      newWorker = reg.installing;
-      newWorker.addEventListener('statechange', () => {
-        if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-          document.getElementById('updateBanner').style.display='block';
-        }
-      });
-    });
-  });
-}
-document.getElementById('reloadBtn').onclick = () => location.reload();
-
-/* ===== OFFLINE ===== */
-const offlineBanner = document.getElementById('offlineBanner');
-function updateOnlineStatus(){
-  offlineBanner.style.display = navigator.onLine ? 'none' : 'block';
-}
-window.addEventListener('online', updateOnlineStatus);
-window.addEventListener('offline', updateOnlineStatus);
-updateOnlineStatus();
-
 /* ===== DATA ===== */
-const STORAGE_KEY = 'bloodpressure_logs';
-const form = document.getElementById('logForm');
-const container = document.getElementById('logContainer');
-const emptyState = document.getElementById('emptyState');
-const fromDateInput = document.getElementById('fromDate');
-const toDateInput = document.getElementById('toDate');
-const printTitle = document.getElementById('printTitle');
+const STORAGE_KEY='bloodpressure_logs';
+const form=document.getElementById('logForm');
+const container=document.getElementById('logContainer');
+const emptyState=document.getElementById('emptyState');
+const fromDateInput=document.getElementById('fromDate');
+const toDateInput=document.getElementById('toDate');
+const printTitle=document.getElementById('printTitle');
 
 function loadLogs(){
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+  return JSON.parse(localStorage.getItem(STORAGE_KEY))||[];
 }
 function saveLogs(logs){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(logs));
 }
 function getFiltered(){
-  const f = fromDateInput.value;
-  const t = toDateInput.value;
-  return loadLogs().filter(l =>
-    (!f || l.date >= f) &&
-    (!t || l.date <= t)
-  );
+  const f=fromDateInput.value;
+  const t=toDateInput.value;
+  return loadLogs().filter(l=>(!f||l.date>=f)&&(!t||l.date<=t));
+}
+
+/* ===== TOAST + HAPTIC ===== */
+function showToast(msg){
+  const toast=document.getElementById('toast');
+  toast.textContent=msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'),1800);
+}
+function haptic(){
+  if(navigator.vibrate) navigator.vibrate(30);
 }
 
 /* ===== RENDER ===== */
-function render(logs = loadLogs()){
-  container.innerHTML = '';
-  emptyState.style.display = logs.length ? 'none' : 'block';
+function render(logs=loadLogs()){
+  container.innerHTML='';
+  emptyState.style.display=logs.length?'none':'block';
 
-  const grouped = {};
-  logs.forEach(l => (grouped[l.date] = grouped[l.date] || []).push(l));
+  const grouped={};
+  logs.forEach(l=>(grouped[l.date]=grouped[l.date]||[]).push(l));
 
-  Object.keys(grouped).sort().reverse().forEach(date => {
-    const title = document.createElement('div');
-    title.className = 'day-title';
-    title.textContent = date;
+  Object.keys(grouped).sort().reverse().forEach(date=>{
+    const title=document.createElement('div');
+    title.className='day-title';
+    title.textContent=date;
     container.appendChild(title);
 
-    const ul = document.createElement('ul');
-    grouped[date]
-      .sort((a,b) => a.time.localeCompare(b.time))
-      .forEach(l => {
-        const li = document.createElement('li');
-        li.innerHTML =
-          `${l.time} · 
-          <span class="${l.systolic>=140?'value-warn':'value-ok'}">${l.systolic}</span> /
-          <span class="${l.diastolic>=90?'value-warn':'value-ok'}">${l.diastolic}</span>
-          · Puls <span class="${l.pulse>=100?'value-warn':'value-ok'}">${l.pulse}</span>`;
-        ul.appendChild(li);
-      });
-
+    const ul=document.createElement('ul');
+    grouped[date].sort((a,b)=>a.time.localeCompare(b.time)).forEach(l=>{
+      const li=document.createElement('li');
+      li.innerHTML=`
+        ${l.time} ·
+        <span class="${l.systolic>=140?'value-warn':'value-ok'}">${l.systolic}</span> /
+        <span class="${l.diastolic>=90?'value-warn':'value-ok'}">${l.diastolic}</span>
+        · Puls <span class="${l.pulse>=100?'value-warn':'value-ok'}">${l.pulse}</span>
+      `;
+      ul.appendChild(li);
+    });
     container.appendChild(ul);
   });
 }
 
 /* ===== SAVE ===== */
-form.onsubmit = e => {
+form.onsubmit=e=>{
   e.preventDefault();
-  const logs = loadLogs();
+  const logs=loadLogs();
   logs.unshift({
-    date: new Date().toISOString().split('T')[0],
-    time: time.value,
-    systolic: systolic.value,
-    diastolic: diastolic.value,
-    pulse: pulse.value
+    date:new Date().toISOString().split('T')[0],
+    time:time.value,
+    systolic:systolic.value,
+    diastolic:diastolic.value,
+    pulse:pulse.value
   });
   saveLogs(logs);
   form.reset();
-  form.reset();
-
-  // Stäng mobiltangentbord
   document.activeElement.blur();
+  window.scrollTo({top:0,behavior:'smooth'});
+  haptic();
+  showToast('Värde sparat');
   render();
 };
 
-/* ===== EXPORT PDF ===== */
-document.getElementById('pdfBtn').onclick = async () => {
-  try {
-    if (!window.jspdf || !window.jspdf.jsPDF) {
-      alert('PDF-biblioteket kunde inte laddas');
-      return;
-    }
-
-    const { jsPDF } = window.jspdf;
-    const logs = getFiltered();
-
-    if (!logs.length) {
-      alert('Ingen data att exportera');
-      return;
-    }
-
-    const from = fromDateInput.value || 'start';
-    const to = toDateInput.value || 'idag';
-
-    const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-    let y = 40;
-
-    doc.setFontSize(16);
-    doc.text(`Blodtryckslogg från ${from} till ${to}`, 40, y);
-    y += 30;
-    doc.setFontSize(10);
-
-    let currentDate = '';
-    logs.forEach(l => {
-      if (l.date !== currentDate) {
-        currentDate = l.date;
-        y += 16;
-        doc.setFont(undefined, 'bold');
-        doc.text(currentDate, 40, y);
-        doc.setFont(undefined, 'normal');
-        y += 14;
-      }
-
-      doc.text(
-        `${l.time}  ${l.systolic}/${l.diastolic} mmHg  Puls ${l.pulse}`,
-        60,
-        y
-      );
-      y += 14;
-
-      if (y > 800) {
-        doc.addPage();
-        y = 40;
-      }
-    });
-
-    const blob = doc.output('blob');
-    const file = new File([blob], `blodtryckslogg_${from}_${to}.pdf`, {
-      type: 'application/pdf'
-    });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      await navigator.share({ files: [file], title: 'Blodtryckslogg' });
-    } else {
-      doc.save(file.name);
-    }
-
-  } catch (err) {
-    console.error(err);
-    alert('Ett fel uppstod vid PDF-export');
-  }
+/* ===== EXPORTS ===== */
+document.getElementById('pdfBtn').onclick=()=>{
+  alert('PDF-export är tillfälligt inaktiverad i denna version.');
 };
 
-
-/* ===== CSV ===== */
-document.getElementById('csvBtn').onclick = () => {
-  const logs = getFiltered();
-  if (!logs.length) {
-    alert('Ingen data att exportera');
-    return;
-  }
-  let csv = 'Datum,Tid,Systoliskt,Diastoliskt,Puls\n';
-  logs.forEach(l => {
-    csv += `${l.date},${l.time},${l.systolic},${l.diastolic},${l.pulse}\n`;
-  });
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'blodtryck_logg.csv';
-  document.body.appendChild(a);
+document.getElementById('csvBtn').onclick=()=>{
+  const logs=getFiltered();
+  if(!logs.length) return alert('Ingen data att exportera');
+  let csv='Datum,Tid,Systoliskt,Diastoliskt,Puls\n';
+  logs.forEach(l=>csv+=`${l.date},${l.time},${l.systolic},${l.diastolic},${l.pulse}\n`);
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='blodtryck_logg.csv';
   a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 };
 
-/* ===== BACKUP ===== */
-document.getElementById('backupBtn').onclick = () => {
-  const data = JSON.stringify(loadLogs(), null, 2);
-  const blob = new Blob([data], { type:'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'blodtryck_backup.json';
-  document.body.appendChild(a);
+document.getElementById('backupBtn').onclick=()=>{
+  const blob=new Blob([JSON.stringify(loadLogs(),null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='blodtryck_backup.json';
   a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
 };
 
 render();
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
