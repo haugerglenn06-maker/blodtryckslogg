@@ -7,6 +7,13 @@ Appen är byggd för personligt bruk, fungerar offline och lagrar all data lokal
 
 ---
 
+## 📌 Versionshistorik
+
+Se full versionshistorik i  
+👉 [CHANGELOG.md](CHANGELOG.md)
+
+---
+
 ## ✨ Funktioner
 
 - 📅 Logga blodtryck och puls med manuellt klockslag
@@ -98,10 +105,3 @@ Ingen extern backend eller databas används.
 ```bash
 git clone https://github.com/haugerglenn06-maker/blodtryckslogg.git
 cd blodtryckslogg
-
----
-
-## 📌 Versionshistorik
-
-Se full versionshistorik i  
-👉 [CHANGELOG.md](CHANGELOG.md)
