@@ -74,8 +74,6 @@ Appen kan installeras som en **Progressive Web App**:
 
 ## ⚠️ Rekommenderade gränsvärden
 
-Färgmarkering används för att indikera värden över rekommenderade nivåer:
-
 | Värde | Gräns |
 |---|---|
 | Systoliskt | ≥ 140 |
