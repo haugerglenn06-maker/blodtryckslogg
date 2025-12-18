@@ -98,6 +98,3 @@ Ingen extern backend eller databas används.
 ```bash
 git clone https://github.com/haugerglenn06-maker/blodtryckslogg.git
 cd blodtryckslogg
-
-## 📌 Versionshistorik
-Se [CHANGELOG.md](CHANGELOG.md)
